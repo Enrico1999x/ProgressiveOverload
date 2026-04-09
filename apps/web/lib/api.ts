@@ -24,6 +24,30 @@ export type ExerciseStagnation = {
   explanation: string;
 };
 
+export type Session = {
+  id: string;
+  userId: string;
+  cycleId: string;
+  workoutDayTemplateId: string;
+  performedAt: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ExerciseSet = {
+  id: string;
+  sessionId: string;
+  exerciseId: string;
+  setOrder: number;
+  weight: number;
+  reps: number;
+  rir: number | null;
+  rpe: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 async function apiFetch<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     cache: "no-store",
@@ -46,4 +70,16 @@ export function getExerciseHistory(id: string) {
 
 export function getExerciseStagnation(id: string) {
   return apiFetch<ExerciseStagnation>(`/exercises/${id}/stagnation`);
+}
+
+export function getSessions() {
+  return apiFetch<Session[]>("/sessions");
+}
+
+export function getSession(id: string) {
+  return apiFetch<Session>(`/sessions/${id}`);
+}
+
+export function getSessionSets(id: string) {
+  return apiFetch<ExerciseSet[]>(`/sessions/${id}/sets`);
 }

@@ -16,6 +16,12 @@ export default async function ExercisesPage() {
             Browse your tracked exercises and jump into history and stagnation signals
             for each movement.
           </p>
+          <div>
+            <Link href="/sessions" className="button-link">
+              Open sessions workflow
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </header>
 
         <section className="grid cards">
