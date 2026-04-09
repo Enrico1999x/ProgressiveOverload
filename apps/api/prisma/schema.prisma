@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String           @id @default(uuid())
+  email          String           @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  trainingCycles TrainingCycle[]
+  workoutSessions WorkoutSession[]
+  exercises      Exercise[]
+  progressRules  ProgressRule[]
+  exerciseVideos ExerciseVideo[]
+}
+
+model TrainingCycle {
+  id                 String               @id @default(uuid())
+  userId             String
+  name               String
+  intervalLengthDays Int
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutDayTemplates WorkoutDayTemplate[]
+  workoutSessions    WorkoutSession[]
+}
+
+model WorkoutDayTemplate {
+  id          String          @id @default(uuid())
+  cycleId     String
+  name        String
+  orderIndex  Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  cycle       TrainingCycle   @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  workoutSessions WorkoutSession[]
+}
+
+model Exercise {
+  id             String          @id @default(uuid())
+  userId         String
+  name           String
+  muscleGroup    String
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseSets   ExerciseSet[]
+  progressRules  ProgressRule[]
+  exerciseVideos ExerciseVideo[]
+}
+
+model WorkoutSession {
+  id                  String             @id @default(uuid())
+  userId              String
+  cycleId             String
+  workoutDayTemplateId String
+  performedAt         DateTime
+  notes               String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cycle               TrainingCycle      @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  workoutDayTemplate  WorkoutDayTemplate @relation(fields: [workoutDayTemplateId], references: [id], onDelete: Cascade)
+  exerciseSets        ExerciseSet[]
+}
+
+model ExerciseSet {
+  id         String         @id @default(uuid())
+  sessionId  String
+  exerciseId String
+  setOrder   Int
+  weight     Float
+  reps       Int
+  rir        Float?
+  rpe        Float?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  session    WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise   Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+}
+
+model ProgressRule {
+  id          String    @id @default(uuid())
+  userId      String
+  exerciseId  String
+  repRangeMin Int
+  repRangeMax Int
+  incrementKg Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise    Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+}
+
+model ExerciseVideo {
+  id             String    @id @default(uuid())
+  exerciseId     String
+  userId         String
+  type           String
+  title          String
+  description    String?
+  videoUrl       String?
+  thumbnailUrl   String?
+  sourcePlatform String?
+  sourceLink     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  exercise       Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
